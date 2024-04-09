@@ -32,7 +32,7 @@ export const updateUser = async (req, res, next) => {
     }
   }
   try {
-    const updateUser = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       {
         $set: {
@@ -44,9 +44,22 @@ export const updateUser = async (req, res, next) => {
       },
       { new: true }
     );
-    const { password, ...rest } = updateUser._doc;
+    const { password, ...rest } = updatedUser._doc;
     res.status(200).json(rest);
   } catch (error) {
     next(error);
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  if (req.user.id !== req.params.userId) {
+    return next(errorHandler(403, "you are not allowed to delete this user"));
+  }
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.params.userId);
+    const data = Object.assign({}, { username: deletedUser.username });
+    return res.status(200).json(data);
+  } catch (error) {
+    return next(error);
   }
 };
