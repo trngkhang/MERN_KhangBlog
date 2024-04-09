@@ -9,7 +9,7 @@ export const test = (req, res) => {
 export const updateUser = async (req, res, next) => {
   //kiem tra id user
   if (req.user.id !== req.params.userId) {
-    return next(errorHandler(403, "you are not allowed to update this user"));
+    return next(errorHandler(403, "You are not allowed to update this user"));
   }
   //kiem tra pasword
   if (req.body.password) {
@@ -27,7 +27,7 @@ export const updateUser = async (req, res, next) => {
     }
     if (!req.body.username.match(/^[a-zA-Z0-9]+$/)) {
       return next(
-        errorHandler(400, "Username can onlu contain letters and number")
+        errorHandler(400, "Username can only contain letters and number")
       );
     }
   }
@@ -53,7 +53,7 @@ export const updateUser = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   if (req.user.id !== req.params.userId) {
-    return next(errorHandler(403, "you are not allowed to delete this user"));
+    return next(errorHandler(403, "You are not allowed to delete this user"));
   }
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.userId);
