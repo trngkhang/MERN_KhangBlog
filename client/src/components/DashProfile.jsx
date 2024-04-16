@@ -21,9 +21,10 @@ import {
 } from "../redux/user/userSlice.js";
 import { useDispatch } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 export default function DashProfile() {
-  const { currentUser, error } = useSelector((state) => state.user);
+  const { currentUser, error, loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [imageFileUpLoadProgress, setImageFileUploadProgress] = useState(null);
@@ -247,9 +248,21 @@ export default function DashProfile() {
             type="submit"
             gradientDuoTone="purpleToBlue"
             outline
+            disabled={loading || imageFileUploading}
           >
             Update
           </Button>
+          {currentUser.isAdmin && (
+            <Link to="/create-post">
+              <Button
+                className="w-full mt-3"
+                type="button"
+                gradientDuoTone="purpleToPink"
+              >
+                Create post
+              </Button>
+            </Link>
+          )}
         </div>
       </form>
       <div className="mt-5 flex justify-between text-red-500">
