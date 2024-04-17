@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import slug from "mongoose-slug-updater";
+mongoose.plugin(slug);
 
 const postSchema = new mongoose.Schema(
   {
@@ -9,7 +11,6 @@ const postSchema = new mongoose.Schema(
     title: {
       type: String,
       require: true,
-      unique: true,
     },
     content: {
       type: String,
@@ -26,7 +27,7 @@ const postSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      require: true,
+      slug: "title",
       unique: true,
     },
   },
