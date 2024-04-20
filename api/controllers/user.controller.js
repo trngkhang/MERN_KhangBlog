@@ -94,7 +94,6 @@ export const getusers = async (req, res, next) => {
     const lastMonthUsers = await User.countDocuments({
       createdAt: { $gte: oneMonthAgo },
     });
-    console.log(oneMonthAgo, lastMonthUsers);
     res.status(200).json({
       users: userWithoutPassword,
       totalUsers,

@@ -99,7 +99,7 @@ export default function DashPost() {
                       src={post.image}
                       alt={post.title}
                       className="w-20 h-10 object-cover bg-gray-500"
-                    ></img>
+                    />
                   </Table.Cell>
                   <Table.Cell>
                     <Link
