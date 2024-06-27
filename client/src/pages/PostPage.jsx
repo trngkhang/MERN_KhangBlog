@@ -1,12 +1,14 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Spinner } from "flowbite-react";
+import CommentSection from "../components/CommentSection";
 
 export default function PostPage() {
   const { postSlug } = useParams();
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState(null);
   const [error, setError] = useState(false);
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -35,7 +37,7 @@ export default function PostPage() {
         <Spinner aria-label="Extra large spinner example" size="xl" />
       </div>
     );
-  }
+  } 
   return (
     <main className=" min-h-screen flex flex-col max-w-5xl mx-auto p-3">
       <h1 className="text-3xl lg:text-4xl font-serif mx-auto max-w-2xl m-10">
@@ -56,7 +58,11 @@ export default function PostPage() {
           {post && (post.content.length / 1000 + 1).toFixed(0)} mins read
         </span>
       </div>
-      <div className="post-content p-3 max-w-3xl lg:max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: post && post.content }}></div>
+      <div
+        className="post-content p-3 max-w-3xl lg:max-w-4xl mx-auto"
+        dangerouslySetInnerHTML={{ __html: post && post.content }}
+      ></div>
+      <CommentSection postId={post._id} />
     </main>
   );
 }
