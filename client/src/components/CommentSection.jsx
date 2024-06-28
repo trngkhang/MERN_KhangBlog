@@ -1,10 +1,11 @@
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, Alert } from "flowbite-react";
 import { useEffect, useState } from "react";
 import Comment from "./Comment";
 
 export default function CommentSection({ postId }) {
+  const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(null);
@@ -38,6 +39,35 @@ export default function CommentSection({ postId }) {
       }
     } catch (error) {
       setCommentError(error.message);
+    }
+  };
+  const handleLike = async (commentId) => {
+    try {
+      if (!currentUser) {
+        navigate("/login");
+        return;
+      }
+      //thay doi like o database
+      const res = await fetch(`/api/comment/likecomment/${commentId}`, {
+        method: "PUT",
+      });
+      //cap nhat like o frontend
+      if (res.ok) {
+        const data = await res.json();
+        setComments(
+          comments.map((comment) =>
+            comment._id === commentId
+              ? {
+                  ...comment,
+                  likes: data.likes,
+                  numberOfLike: data.likes.length,
+                }
+              : comment
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
@@ -114,13 +144,15 @@ export default function CommentSection({ postId }) {
       )}
       <div className="flex flex-row items-center my-5">
         <p>Comments</p>
-        <div className="border border-gray-400 px-2 ml-1">{comments.length}</div>
+        <div className="border border-gray-400 px-2 ml-1">
+          {comments.length}
+        </div>
       </div>
       {comments.length === 0 ? (
         <p>No comments yet.</p>
       ) : (
         comments.map((comment) => (
-          <Comment key={comment._id} comment={comment} />
+          <Comment key={comment._id} comment={comment} onLike={handleLike} />
         ))
       )}
     </div>
