@@ -26,14 +26,14 @@ export default function CommentSection({ postId }) {
         body: JSON.stringify({
           content: comment,
           postId,
-          userId: currentUser.id, // Assuming currentUser has an id property
+          userId: currentUser._id, // Assuming currentUser has an id property
         }),
       });
       const data = await res.json();
       if (res.ok) {
         setComment("");
         setCommentError(null);
-        setComments((prevComments) => [...prevComments, data]);
+        setComments((prevComments) => [data, ...prevComments]);
       } else {
         setCommentError(data.message || "Failed to post comment.");
       }
