@@ -1,11 +1,12 @@
 import express from "express";
 const router = express.Router();
-import { test } from "../controllers/user.controller.js";
+import {  test } from "../controllers/user.controller.js";
 import { verifyToken } from "../utils/verifyToken.js";
 import {
   updateUser,
   deleteUser,
-  getusers,
+  getUsers,
+  getUser,
 } from "../controllers/user.controller.js";
 
 router.get("/test", test);
@@ -13,6 +14,6 @@ router.get("/test", test);
 //controoler: updateUser thuc hien sau khi goi rourter
 router.put("/update/:userId", verifyToken, updateUser);
 router.delete("/delete/:userId", verifyToken, deleteUser);
-router.get("/getusers", verifyToken, getusers);
-
+router.get("/getusers", verifyToken, getUsers);
+router.get("/getuser/:userId", getUser);
 export default router;

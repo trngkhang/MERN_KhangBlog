@@ -1,16 +1,19 @@
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Button, Alert } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Comment from "./Comment";
 
-export default function CommentSection(postId) {
-  postId = postId.postId;
+export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(null);
+  const [comments, setComments] = useState([]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (comment.length === 0 || comment.length > 200) {
+      setCommentError("Comment must be between 1 and 200 characters.");
       return;
     }
     try {
@@ -22,28 +25,49 @@ export default function CommentSection(postId) {
         body: JSON.stringify({
           content: comment,
           postId,
-          userId: 'aaa',
+          userId: currentUser.id, // Assuming currentUser has an id property
         }),
       });
       const data = await res.json();
       if (res.ok) {
         setComment("");
         setCommentError(null);
+        setComments((prevComments) => [...prevComments, data]);
+      } else {
+        setCommentError(data.message || "Failed to post comment.");
       }
     } catch (error) {
       setCommentError(error.message);
     }
   };
+
+  useEffect(() => {
+    const getComments = async () => {
+      try {
+        const res = await fetch(`/api/comment/getpostcomments/${postId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setComments(data);
+        } else {
+          console.error("Failed to fetch comments");
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    getComments();
+  }, [postId]);
+
   return (
-    <div className=" max-w-2xl w-full mx-auto p-3">
-      <h3 className=" text-center text-2xl font-semibold p-4">Comment</h3>
+    <div className="max-w-2xl w-full mx-auto p-3">
+      <h3 className="text-center text-2xl font-semibold p-4">Comment</h3>
       {currentUser ? (
         <div className="text-sm flex flex-row gap-1 items-center">
-          <p>Sign in as:</p>
+          <p>Signed in as:</p>
           <img
-            className=" w-6 rounded-full"
+            className="w-6 rounded-full"
             src={currentUser.profilePicture}
-            alt="profilePicture"
+            alt="profile"
           />
           <Link
             className="text-xs text-cyan-600 hover:underline"
@@ -53,12 +77,9 @@ export default function CommentSection(postId) {
           </Link>
         </div>
       ) : (
-        <div className=" text-teal-500 text-sm flex gap-2">
+        <div className="text-teal-500 text-sm flex gap-2">
           You must be logged in to comment.
-          <Link
-            to="/login"
-            className=" text-blue-500 hover:underline font-bold"
-          >
+          <Link to="/login" className="text-blue-500 hover:underline font-bold">
             Login
           </Link>
         </div>
@@ -66,18 +87,18 @@ export default function CommentSection(postId) {
       {currentUser && (
         <form
           onSubmit={handleSubmit}
-          className=" rounded-md border border-teal-500 p-3 mt-4"
+          className="rounded-md border border-teal-500 p-3 mt-4"
         >
           <textarea
             rows="3"
             maxLength="200"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Add a commment..."
+            placeholder="Add a comment..."
             className="w-full rounded-md border-gray-400 text-sm"
           />
           <div className="flex justify-between items-center mt-5">
-            <p className=" text-gray-400 text-sm">
+            <p className="text-gray-400 text-sm">
               {200 - comment.length} characters remaining
             </p>
             <Button gradientDuoTone="purpleToBlue" type="submit">
@@ -90,6 +111,17 @@ export default function CommentSection(postId) {
             </Alert>
           )}
         </form>
+      )}
+      <div className="flex flex-row items-center my-5">
+        <p>Comments</p>
+        <div className="border border-gray-400 px-2 ml-1">{comments.length}</div>
+      </div>
+      {comments.length === 0 ? (
+        <p>No comments yet.</p>
+      ) : (
+        comments.map((comment) => (
+          <Comment key={comment._id} comment={comment} />
+        ))
       )}
     </div>
   );
