@@ -103,7 +103,7 @@ export default function Comment({ comment, onLike, onSave, onDelete }) {
                       (comment.numberOfLike === 1 ? "like" : "likes")}
                 </p>
               </div>
-              {comment.userId === currentUser._id && (
+              {comment.userId === currentUser && currentUser._id && (
                 <>
                   <button
                     type="button"

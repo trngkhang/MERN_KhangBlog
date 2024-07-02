@@ -2,12 +2,14 @@ import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Spinner } from "flowbite-react";
 import CommentSection from "../components/CommentSection";
+import { PostCard } from "../components/PostCard";
 
 export default function PostPage() {
   const { postSlug } = useParams();
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState(null);
   const [error, setError] = useState(false);
+  const [recentPosts, setRecentPosts] = useState([]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -31,13 +33,28 @@ export default function PostPage() {
     };
     fetchPost();
   }, [postSlug]);
+
+  useEffect(() => {
+    try {
+      const fetchRecentPosts = async () => {
+        const res = await fetch("/api/post/getposts?limit=3");
+        if (res.ok) {
+          const data = await res.json();
+          setRecentPosts(data.posts);
+        }
+      };
+      fetchRecentPosts();
+    } catch (error) {
+      console.log(error.message);
+    }
+  }, []);
   if (loading) {
     return (
       <div className="text-center">
         <Spinner aria-label="Extra large spinner example" size="xl" />
       </div>
     );
-  } 
+  }
   return (
     <main className=" min-h-screen flex flex-col max-w-5xl mx-auto p-3">
       <h1 className="text-3xl lg:text-4xl font-serif mx-auto max-w-2xl m-10">
@@ -63,6 +80,13 @@ export default function PostPage() {
         dangerouslySetInnerHTML={{ __html: post && post.content }}
       ></div>
       <CommentSection postId={post._id} />
+      <div className="flex flex-col items-center">
+        <h1 className="">Recenet articles</h1>
+        <div className="flex flex-wrap gap-5 justify-center">
+          {recentPosts &&
+            recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
+        </div>
+      </div>
     </main>
   );
 }
