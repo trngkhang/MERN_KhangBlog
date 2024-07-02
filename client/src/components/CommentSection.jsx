@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, Alert } from "flowbite-react";
+import { Button, Alert, Modal } from "flowbite-react";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useEffect, useState } from "react";
 import Comment from "./Comment";
 
@@ -10,6 +11,25 @@ export default function CommentSection({ postId }) {
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(null);
   const [comments, setComments] = useState([]);
+  const [deleteCommentId, setDeleteCommentId] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+
+  useEffect(() => {
+    const getComments = async () => {
+      try {
+        const res = await fetch(`/api/comment/getpostcomments/${postId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setComments(data);
+        } else {
+          console.error("Failed to fetch comments");
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    getComments();
+  }, [postId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,22 +98,27 @@ export default function CommentSection({ postId }) {
     );
   };
 
-  useEffect(() => {
-    const getComments = async () => {
-      try {
-        const res = await fetch(`/api/comment/getpostcomments/${postId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setComments(data);
-        } else {
-          console.error("Failed to fetch comments");
-        }
-      } catch (error) {
-        console.error(error.message);
+  const handleDelete = async (commentId) => {
+    setOpenModal(false);
+    if (!currentUser) {
+      return navigate("/login");
+    }
+    try {
+      const res = await fetch(`/api/comment/delete/${commentId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: currentUser._id }),
+      });
+      if (res.ok) {
+        const deletedComment = await res.json();
+        setComments(comments.filter((c) => c._id !== commentId));
       }
-    };
-    getComments();
-  }, [postId]);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <div className="max-w-2xl w-full mx-auto p-3">
@@ -164,9 +189,40 @@ export default function CommentSection({ postId }) {
             comment={comment}
             onLike={handleLike}
             onSave={handleEdit}
+            onDelete={(commentId) => {
+              setOpenModal(true);
+              setDeleteCommentId(commentId);
+            }}
           />
         ))
       )}
+      <Modal
+        show={openModal}
+        size="md"
+        onClose={() => setOpenModal(false)}
+        popup
+      >
+        <Modal.Header />
+        <Modal.Body>
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+              Are you sure you want to delete this comment?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <Button
+                color="failure"
+                onClick={() => handleDelete(deleteCommentId)}
+              >
+                {"Yes, I'm sure"}
+              </Button>
+              <Button color="gray" onClick={() => setOpenModal(false)}>
+                No, cancel
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

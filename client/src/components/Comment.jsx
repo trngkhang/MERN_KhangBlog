@@ -4,7 +4,7 @@ import { FaThumbsUp } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { Button } from "flowbite-react";
 
-export default function Comment({ comment, onLike, onSave }) {
+export default function Comment({ comment, onLike, onSave, onDelete }) {
   const { currentUser } = useSelector((state) => state.user);
   const [user, setUser] = useState();
   const [editing, setEditing] = useState(false);
@@ -81,10 +81,10 @@ export default function Comment({ comment, onLike, onSave }) {
           </div>
         ) : (
           <div>
-            <p className="text-gray-500 text-sm pt-1 pb-2">
+            <p className="text-gray-500 text-sm pt-2 pb-3">
               {comment && comment.content}
             </p>
-            <div className="border-t flex flex-row gap-1 pt-1">
+            <div className="border-t w-fit flex flex-row gap-2 pt-2">
               <div className="flex flew-row gap-1  mr-1">
                 <button
                   className={`text-gray-400 hover:text-blue-500 ${
@@ -104,13 +104,22 @@ export default function Comment({ comment, onLike, onSave }) {
                 </p>
               </div>
               {comment.userId === currentUser._id && (
-                <button
-                  type="button"
-                  onClick={handleEdit}
-                  className="text-xs text-gray-500 hover:text-blue-500"
-                >
-                  Edit
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={handleEdit}
+                    className="text-xs text-gray-500 hover:text-blue-500"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(comment._id)}
+                    className="text-xs text-gray-500 hover:text-blue-500"
+                  >
+                    Delete
+                  </button>
+                </>
               )}
             </div>
           </div>
