@@ -5,6 +5,7 @@ import {
   HiDocumentText,
   HiUserGroup,
 } from "react-icons/hi";
+import { BiSolidCommentDetail } from "react-icons/bi";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -69,6 +70,17 @@ export default function DashSidebar() {
                 as="div"
               >
                 Posts
+              </Sidebar.Item>
+            </Link>
+          )}
+          {currentUser.isAdmin && (
+            <Link to="/dashboard?tab=comments">
+              <Sidebar.Item
+                active={tab === "comments"}
+                icon={BiSolidCommentDetail}
+                as="div"
+              >
+                Comments
               </Sidebar.Item>
             </Link>
           )}

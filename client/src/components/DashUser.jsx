@@ -30,7 +30,7 @@ export default function DashUser() {
       fetchUsers();
     }
   }, [currentUser._id]);
-  console.log(users);
+
   const handleShowmore = async () => {
     const startIndex = users.length;
     try {

@@ -74,21 +74,46 @@ export const editComment = async (req, res, next) => {
 };
 
 export const deleteComment = async (req, res, next) => {
-  console.log(req.user.id, req.body.userId);
-  if (req.user.id !== req.body.userId) {
-    return next(
-      errorHandler(403, "You are not allowed to create this comment.")
-    );
+  if (req.user.isAdmin || req.user.id === req.body.userId) {
+    try {
+      const deletedComment = await Comment.findByIdAndDelete(
+        req.params.commentId
+      );
+      if (!deletedComment) {
+        return next(errorHandler(404, "Comment not found!"));
+      }
+      return res.status(200).json("This comment has been deleted");
+    } catch (error) {
+      next(error);
+    }
+  }
+  return next(errorHandler(403, "you are not allow to delete this comment"));
+};
+
+export const getComments = async (req, res, next) => {
+  if (!req.user.isAdmin) {
+    return next(errorHandler(403, "You are not allowed to get all comments "));
   }
   try {
-    const deletedComment = await Comment.findByIdAndDelete(
-      req.params.commentId
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+    const sortDirection = req.query.sort === "desc" ? -1 : 1;
+    const comments = await Comment.find()
+      .sort({ createdAt: sortDirection })
+      .skip(startIndex)
+      .limit(limit);
+    const totalComments = await Comment.countDocuments();
+    const now = new Date();
+    const oneMounthAgo = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getDate()
     );
-    if (!deletedComment) {
-      return next(errorHandler(404, "Comment not found!"));
-    }
-    return res.status(200).json("This comment has been deleted");
+    const lastMonthComments = await Comment.countDocuments({
+      createdAt: { $gte: oneMounthAgo },
+    });
+    return res.status(200).json({ comments, totalComments, lastMonthComments });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
