@@ -31,3 +31,7 @@
 .dark .post-content a {
     color: red;
 }
+
+.min-h-ignoreheader{
+    min-height: calc(100vh - 4rem);
+}
